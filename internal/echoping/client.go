@@ -16,6 +16,7 @@ import (
 
 var ClientPingTimeout = 3 * time.Second
 var ClientPingInterval = 20 * time.Millisecond
+var ClientCalculationInterval = 1 * time.Second
 
 type clientPingRequestRecord struct {
 	sentTime  time.Time
@@ -51,8 +52,8 @@ func NewClient(payloadSize int) *Client {
 }
 
 func (client *Client) startClientTimer() {
-	d1s := 1 * time.Second
-	d2s := 2 * time.Second
+	d1s := 1 * ClientCalculationInterval
+	d2s := 2 * ClientCalculationInterval
 
 	reportStats := func() {
 		client.mu.Lock()
@@ -143,9 +144,9 @@ func (client *Client) startClientTimer() {
 					}
 				}
 
-				statMessage = fmt.Sprintf("client stat %s (%s): pps=%.1f, loss=%.1f%%, recv=%.2fMB/s, round-trip time (ms): avg=%.1f, min=%.1f, max=%.1f, stddev=%.1f, p90=%.1f",
+				statMessage = fmt.Sprintf("client stat %s (%s): count=%d pps=%.1f, loss=%.1f%%, recv=%.2fMB/s, round-trip time (ms): avg=%.1f, min=%.1f, max=%.1f, stddev=%.1f, p90=%.1f",
 					cs.key, cs.sessionId,
-					pps, lossRatio*100, recvSpeed/(1024*1024),
+					statsRequestCount, pps, lossRatio*100, recvSpeed/(1024*1024),
 					rttAvgMs, rttMinMs, rttMaxMs, rttStddevMs, rttP90Ms)
 			} else {
 				statMessage = fmt.Sprintf("client stat %s (%s) new connection", cs.key, cs.sessionId)
@@ -161,7 +162,7 @@ func (client *Client) startClientTimer() {
 	}
 
 	go func() {
-		t1s := time.Tick(time.Second)
+		t1s := time.Tick(ClientCalculationInterval)
 		for {
 			select {
 			case <-t1s:

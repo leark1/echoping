@@ -24,6 +24,7 @@ func main() {
 	flag.DurationVar(&echoping.ClientPingInterval, "ping-interval", echoping.ClientPingInterval, "The interval between ping requests sent by client")
 	flag.StringVar(&argLossRatio, "loss-ratio", argLossRatio, `The simulated UDP loss ratio on client side (must be used with "-connect"). "0.1"" means 10% packet loss, "0.1,0.2" means 0.1 for sending and 0.2 for receiving`)
 	flag.IntVar(&payloadSize, "payload-size", 1300, "The payload size of ping request")
+	flag.DurationVar(&echoping.ClientCalculationInterval, "calculate_interval", echoping.ClientCalculationInterval, "The interval of ping stats calculation")
 	flag.Parse()
 
 	if argListen != "" {
